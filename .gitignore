@@ -1,0 +1,22 @@
+# Ignorar ambiente virtual
+venv/
+
+# Ignorar arquivos de cache do Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorar pastas de configuração de IDEs
+.vscode/
+.idea/
+
+# Ignorar arquivos de sistema do macOS
+.DS_Store
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar arquivos temporários ou de backup
+*~
+*.bak
+*.swp
