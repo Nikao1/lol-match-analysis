@@ -1,22 +1,23 @@
+from utils import save_to_csv, extract_match_data
 from api import get_puuid, get_match_history, get_match_details
-from utils import save_to_json
+from config import nickname, tagline
 
-api_key = "RGAPI-a9767604-ede1-4525-ad25-607c65f149a7"
-nickname = "Torricelli"
-tagline = "BR1"
-
-# Obter PUUID
 print("Tentando obter o PUUID...")
-puuid = get_puuid(api_key, nickname, tagline)
-
+puuid = get_puuid(nickname, tagline)
 if puuid:
     print(f"PUUID obtido com sucesso: {puuid}")
-    match_ids = get_match_history(api_key, puuid)
+
+    match_ids = get_match_history(puuid, count=5)
     if match_ids:
+        print("Histórico de partidas obtido com sucesso!")
         for match_id in match_ids:
-            match_details = get_match_details(api_key, match_id)
+            match_details = get_match_details(match_id)
             if match_details:
-                save_to_json(f"data/match_{match_id}.json", match_details)
-                print(f"Detalhes da Partida {match_id} salvos com sucesso.")
-else:
-    print("Falha ao obter o PUUID.")
+                print(f"Processando detalhes da partida {match_id}...")
+                match_data = extract_match_data(match_details, puuid)  # Extrai os dados desejados.
+
+
+                # Salva os dados em CSV
+                save_to_csv("data/match_data.csv", match_data)
+
+        print("Processamento concluído! Dados salvos.")
