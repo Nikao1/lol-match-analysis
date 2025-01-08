@@ -9,7 +9,7 @@ def extract_match_data(match_details, puuid):
     player_data = next(p for p in participants if p["puuid"] == puuid)  
     # Localiza o jogador pela PUUID.
 
-    # Extração dos dados desejados
+    # Extração de dados especificos desejados(nesse caso, sao esses stats)
     match_data = {
         "game_id": match_details["metadata"]["matchId"],
         "summoner_name": player_data["summonerName"],
@@ -33,7 +33,7 @@ def save_to_csv(filename, match_data):
                       "item_1", "item_2", "item_3", "item_4", "item_5", "item_6"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-        if not file_exists:  # Se o arquivo não existe, escreve o cabeçalho.
+        if not file_exists: 
             writer.writeheader()
 
         # Organiza itens em colunas separadas

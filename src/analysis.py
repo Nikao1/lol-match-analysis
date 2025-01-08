@@ -1,5 +1,4 @@
 # Funções de análise podem ser adicionadas aqui
-# Exemplo: análise de estatísticas das partidas
 
 def extract_participant_stats(match_data, puuid):
     """
