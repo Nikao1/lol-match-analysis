@@ -1,5 +1,15 @@
 import requests
-from config import api_key
+from dotenv import load_dotenv
+import os
+
+# Carregar variáveis de ambiente através do arquivo .env
+load_dotenv()
+
+# Obtem a chave API, nickname e tagline através das variáveis de ambiente(.env)
+api_key = os.getenv("RIOT_API_KEY")
+nickname = os.getenv("RIOT_NICKNAME")
+tagline = os.getenv("RIOT_TAGLINE")
+
 
 # Função para obter o PUUID com base no nickname e tagline
 def get_puuid(nickname, tagline):

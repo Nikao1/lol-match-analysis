@@ -1,4 +1,4 @@
-# Funções de análise podem ser adicionadas aqui
+# Funções de análise podem e serão adicionadas aqui
 
 def extract_participant_stats(match_data, puuid):
     """
