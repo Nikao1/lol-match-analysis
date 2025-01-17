@@ -1,42 +1,26 @@
 import os
 from dotenv import load_dotenv
-from utils import save_to_csv, extract_match_data
 from api import get_puuid, get_match_history, get_match_details
+from utils import save_to_json
 
+# Carregar variáveis de ambiente
 load_dotenv()
 
-nickname = os.getenv("NICKNAME")
-tagline = os.getenv("TAGLINE")
+api_key = os.getenv("RIOT_API_KEY")
+nickname = os.getenv("RIOT_NICKNAME")
+tagline = os.getenv("RIOT_TAGLINE")
 
 print("Tentando obter o PUUID...")
-puuid = get_puuid(nickname, tagline)
+puuid = get_puuid(api_key, nickname, tagline)
 
 if puuid:
     print(f"PUUID obtido com sucesso: {puuid}")
-
-    match_ids = get_match_history(puuid, count=5)
+    match_ids = get_match_history(api_key, puuid)
     if match_ids:
-        print(f"Histórico de partidas obtido com sucesso! Total de partidas: {len(match_ids)}")
-        
         for match_id in match_ids:
-            print(f"Obtendo detalhes da partida {match_id}...")
-
-            match_details = get_match_details(match_id)
-
+            match_details = get_match_details(api_key, match_id)
             if match_details:
-                print(f"Detalhes da partida {match_id} obtidos com sucesso!")
-                print(f"Detalhes: {match_details}")  # Exibe os detalhes para depuração
-
-                print(f"Processando dados da partida {match_id}...")
-                match_data = extract_match_data(match_details, puuid)  # Extrai os dados desejados.
-                
-                print(f"Salvando dados da partida {match_id} em CSV...")
-                # Salva os dados em CSV
-                save_to_csv("data/match_data.csv", match_data)
-
-            else:
-                print(f"Erro ao obter detalhes da partida {match_id}.")
-    else:
-        print("Não foi possível obter o histórico de partidas. Verifique o PUUID ou a resposta da API.")
+                save_to_json(f"data/match_{match_id}.json", match_details)
+                print(f"Detalhes da Partida {match_id} salvos com sucesso.")
 else:
-    print("Erro ao obter o PUUID! Verifique se as credenciais estão corretas.")
+    print("Falha ao obter o PUUID.")

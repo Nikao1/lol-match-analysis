@@ -24,3 +24,6 @@ __pycache__/
 # Ignorar variávies locais
 
 .env
+
+# Ignora pasta de geração de dados
+src/data/
