@@ -3,6 +3,10 @@ import matplotlib
 matplotlib.use('Agg')  # Define um backend sem interface gráfica
 import matplotlib.pyplot as plt
 import numpy as np
+import logging
+
+# Configuração de logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # IDs das novas botas no jogo
 NEW_BOOTS_IDS = {
@@ -81,6 +85,10 @@ def plot_champion_boots_win_rate(df):
     """
     df = df.dropna()
 
+    if df.empty:
+        logging.warning("Nenhum dado válido para plotar.")
+        return
+
     champions = df["champion"].unique()
     boots = df["boots"].unique()
     
@@ -130,7 +138,7 @@ def analyze_and_plot(df):
     """
     boots_win_rate_df = analyze_champion_boots_win_rate(df)
 
-    print("\nWin Rate por Campeão e Botas:")
-    print(boots_win_rate_df)
+    logging.info("\nWin Rate por Campeão e Botas:")
+    logging.info(boots_win_rate_df)
 
     plot_champion_boots_win_rate(boots_win_rate_df)
