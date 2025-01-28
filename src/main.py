@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from api import get_puuid, get_match_history, get_match_details
 from utils import save_to_json
-from analysis import create_dataframe, analyze_boots_win_rate
+from analysis import create_dataframe, analyze_and_plot
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -13,7 +13,7 @@ nickname = os.getenv("RIOT_NICKNAME")
 tagline = os.getenv("RIOT_TAGLINE")
 
 # Número de partidas a serem analisadas
-MATCH_COUNT = 10
+MATCH_COUNT = 100
 
 def main():
     print("Tentando obter o PUUID...")
@@ -39,7 +39,8 @@ def main():
                 df = create_dataframe(match_data_list, puuid)
 
                 # Realizar análise das botas
-                analyze_boots_win_rate(df)
+                analyze_and_plot(df)
+                
             else:
                 print("Nenhum dado de partida foi coletado.")
         else:

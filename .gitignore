@@ -26,4 +26,7 @@ __pycache__/
 .env
 
 # Ignora pasta de geração de dados
-src/data/
+/data
+
+# Ignora pasta de geração de gráficos
+/outputs

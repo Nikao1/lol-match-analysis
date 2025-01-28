@@ -1,58 +1,10 @@
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')  # Define o backend para um que não exige interface gráfica
+matplotlib.use('Agg')  # Define um backend sem interface gráfica
 import matplotlib.pyplot as plt
-import seaborn as sns
-import os
+import numpy as np
 
-# Configuração de estilo dos gráficos
-sns.set(style="whitegrid")
-
-# Funções de análise podem e serão adicionadas aqui
-def extract_participant_stats(match_data, puuid):
-    """
-    Extrai as estatísticas do jogador com base no PUUID em uma partida.
-    """
-    participants = match_data.get("info", {}).get("participants", [])
-    for participant in participants:
-        if participant.get("puuid") == puuid:
-            return participant
-    return None
-
-
-def create_dataframe(match_data_list, puuid):
-    """
-    Cria um DataFrame pandas a partir de uma lista de dados das partidas,
-    extraindo as informações relevantes para o jogador com base no PUUID.
-    """
-    extracted_data = []
-
-    for match_data in match_data_list:
-        participant_stats = extract_participant_stats(match_data, puuid)
-        if participant_stats:
-            # Extrair as informações desejadas (exemplo: KDA, win, champion, etc.)
-            extracted_data.append({
-                "champion": participant_stats.get("championName"),
-                "kills": participant_stats.get("kills"),
-                "deaths": participant_stats.get("deaths"),
-                "assists": participant_stats.get("assists"),
-                "kda": (participant_stats.get("kills") + participant_stats.get("assists")) / max(1, participant_stats.get("deaths")),
-                "win": participant_stats.get("win"),
-                "totalDamageDealt": participant_stats.get("totalDamageDealt"),
-                "goldEarned": participant_stats.get("goldEarned"),
-                "cs": participant_stats.get("totalMinionsKilled") + participant_stats.get("neutralMinionsKilled"),
-                 # Adicionando informações dos itens
-                "item0": participant_stats.get("item0"),
-                "item1": participant_stats.get("item1"),
-                "item2": participant_stats.get("item2"),
-                "item3": participant_stats.get("item3"),
-                "item4": participant_stats.get("item4"),
-                "item5": participant_stats.get("item5"),
-            })
-
-    return pd.DataFrame(extracted_data)
-
-# IDs das novas botas implementadas no jogo
+# IDs das novas botas no jogo
 NEW_BOOTS_IDS = {
     3170: "Swiftmarch",
     3171: "Crimson Lucidity",
@@ -62,52 +14,123 @@ NEW_BOOTS_IDS = {
     3175: "Spellslinger's Shoes"
 }
 
-def extract_boots_stats(df):
+def create_dataframe(match_data_list, puuid):
     """
-    Extrai as informações das novas botas e calcula a taxa de vitórias.
+    Cria um DataFrame apenas com dados essenciais:
+    - Campeão jogado
+    - Vitória ou derrota
+    - Itens comprados (para identificar botas)
     """
-    # Filtrar as colunas de itens
-    item_columns = [f'item{i}' for i in range(6)]  # item0 a item5
-    item_columns = [col for col in item_columns if col in df.columns]
-    boots_data = []
+    extracted_data = []
 
-    for _, row in df.iterrows():
-        for col in item_columns:
-            item_id = row[col]
-            if item_id in NEW_BOOTS_IDS:  # Verificar se é uma das novas botas
-                boots_data.append({
-                    "boot": NEW_BOOTS_IDS[item_id],
-                    "win": row["win"]
+    for match_data in match_data_list:
+        participants = match_data.get("info", {}).get("participants", [])
+        for participant in participants:
+            if participant.get("puuid") == puuid:
+                extracted_data.append({
+                    "champion": participant.get("championName"),
+                    "win": participant.get("win"),
+                    "items": [
+                        participant.get("item0"),
+                        participant.get("item1"),
+                        participant.get("item2"),
+                        participant.get("item3"),
+                        participant.get("item4"),
+                        participant.get("item5")
+                    ]
                 })
 
-    # Criar DataFrame das botas
-    boots_df = pd.DataFrame(boots_data)
+    return pd.DataFrame(extracted_data)
 
-    # Calcular taxa de vitórias
-    boots_win_rate = boots_df.groupby("boot")["win"].mean() * 100
-
-    return boots_win_rate
-
-def plot_boots_win_rate(boots_win_rate):
+def analyze_champion_boots_win_rate(df):
     """
-    Gera um gráfico de barras da taxa de vitórias das novas botas.
+    Analisa o win rate por campeão dependendo da bota utilizada.
+    Retorna um DataFrame pronto para visualização.
     """
-    plt.figure(figsize=(10, 6))
-    boots_win_rate.sort_values().plot(kind="bar", color="skyblue", edgecolor="black")
-    plt.title("Taxa de Vitórias (%) por Tipo de Bota", fontsize=16)
-    plt.xlabel("Tipo de Bota", fontsize=12)
-    plt.ylabel("Taxa de Vitórias (%)", fontsize=12)
-    plt.xticks(rotation=45)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    data = []
+
+    for champion in df["champion"].unique():
+        champ_data = df[df["champion"] == champion]
+
+        for boot_id, boot_name in NEW_BOOTS_IDS.items():
+            boot_data = champ_data[champ_data["items"].apply(lambda items: boot_id in items)]
+            no_boot_data = champ_data[champ_data["items"].apply(lambda items: boot_id not in items)]
+
+            # Win rate com a bota
+            total_with_boot = len(boot_data)
+            wins_with_boot = boot_data["win"].sum()
+            win_rate_with_boot = (wins_with_boot / total_with_boot) * 100 if total_with_boot > 0 else None
+
+            # Win rate sem a bota
+            total_without_boot = len(no_boot_data)
+            wins_without_boot = no_boot_data["win"].sum()
+            win_rate_without_boot = (wins_without_boot / total_without_boot) * 100 if total_without_boot > 0 else None
+
+            data.append({
+                "champion": champion,
+                "boots": boot_name,
+                "win_rate_with_boot": win_rate_with_boot,
+                "win_rate_without_boot": win_rate_without_boot
+            })
+
+    return pd.DataFrame(data)
+
+def plot_champion_boots_win_rate(df):
+    """
+    Cria um gráfico de barras agrupadas para comparar a taxa de vitória com e sem cada tipo de bota.
+    """
+    df = df.dropna()
+
+    champions = df["champion"].unique()
+    boots = df["boots"].unique()
+    
+    x = np.arange(len(champions)) 
+    width = 0.15  
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    for i, boot in enumerate(boots):
+        boot_data = df[df["boots"] == boot]
+
+        win_rates_with = {champ: boot_data[boot_data["champion"] == champ]["win_rate_with_boot"].values[0] 
+                          if champ in boot_data["champion"].values else 0 for champ in champions}
+        
+        win_rates_without = {champ: boot_data[boot_data["champion"] == champ]["win_rate_without_boot"].values[0] 
+                             if champ in boot_data["champion"].values else 0 for champ in champions}
+
+        
+        ax.bar(x + i * width - (len(boots) * width / 2), 
+               list(win_rates_with.values()), 
+               width=width, 
+               label=f"{boot} (Com)", 
+               alpha=0.7)
+
+        ax.bar(x + i * width - (len(boots) * width / 2) + width/2, 
+               list(win_rates_without.values()), 
+               width=width, 
+               label=f"{boot} (Sem)", 
+               alpha=0.7)
+
+    ax.set_xlabel("Campeões")
+    ax.set_ylabel("Win Rate (%)")
+    ax.set_title("Win Rate por Campeão e Tipo de Botas")
+    ax.set_xticks(x)
+    ax.set_xticklabels(champions, rotation=45)
+    ax.legend()
+    ax.grid(axis="y", linestyle="--", alpha=0.7)
+
     plt.tight_layout()
-    plt.show()
+    plt.savefig("outputs/winrate_campeoes_botas.png")
+    plt.close()
 
-def analyze_boots_win_rate(df):
+# Fluxo principal
+def analyze_and_plot(df):
     """
-    Função principal para análise das botas.
+    Função central que analisa os dados e gera os gráficos.
     """
-    boots_win_rate = extract_boots_stats(df)
-    print("Win rate by boot type:")
-    print(boots_win_rate)
-    plot_boots_win_rate(boots_win_rate)
+    boots_win_rate_df = analyze_champion_boots_win_rate(df)
 
+    print("\nWin Rate por Campeão e Botas:")
+    print(boots_win_rate_df)
+
+    plot_champion_boots_win_rate(boots_win_rate_df)
