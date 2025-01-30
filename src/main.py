@@ -46,8 +46,7 @@ def main():
                 df = create_dataframe(match_data_list, puuid)
 
                 # Realizar análise das botas
-                analyze_and_plot(df)
-                
+                analyze_and_plot(df)                
             else:
                 logging.warning("Nenhum dado de partida foi coletado.")
         else:

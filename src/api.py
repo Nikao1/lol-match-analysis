@@ -1,6 +1,5 @@
 import requests
 from dotenv import load_dotenv
-import json
 import os
 
 # Carregar variáveis de ambiente através do arquivo .env
