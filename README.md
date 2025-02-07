@@ -51,11 +51,11 @@ Além disso, será necessário obter uma chave de API da Riot Games, disponível
 
 4. Crie um arquivo .env na raiz do projeto
    
-   ´´´bash
+   ```bash
    echo RIOT_API_KEY= > .env & echo RIOT_NICKNAME= >> .env & echo RIOT_TAGLINE= >> .env
 
 5. Preencha as variáveis no .env de acordo com o exemplo:
-
+   ```bash
    RIOT_API_KEY=RGAPI-b4dadc-db2a-4444-95f9-d66b9aufe924
    RIOT_NICKNAME=Torricelli
    RIOT_TAGLINE=BR1
@@ -68,7 +68,7 @@ Após configurar o projeto, você pode executá-lo de duas formas:
 
 2. Através do terminal
 
-  ´´´bash
+  ```bash
    cd src
    python main.py
 
