@@ -34,25 +34,28 @@ ALL_BOOTS_IDS = {**DEFAULT_BOOTS_IDS, **NEW_BOOTS_IDS}
 
 def get_boot_name(items):
     """Identifica qual bota foi comprada pelo jogador."""
-    for item in items:
-        if item in NEW_BOOTS_IDS:
-            return NEW_BOOTS_IDS[item]
-    for item in items:
-        if item in DEFAULT_BOOTS_IDS:
-            return DEFAULT_BOOTS_IDS[item]
+    # Converte a lista de itens para um conjunto
+    items_set = set(items)
+    
+    # Verifica se há alguma bota nos itens
+    boots_found = items_set.intersection(ALL_BOOTS_IDS.keys())
+    
+    if boots_found:
+        # Retorna o nome da primeira bota encontrada
+        return ALL_BOOTS_IDS[list(boots_found)[0]]
     return "Sem Botas"
 
 
 
 def create_dataframe(match_data_list, puuid):
     """
-    Cria um DataFrame apenas com dados essenciais para os campeões Ahri, Syndra e Taliyah:
+    Cria um DataFrame apenas com dados essenciais para os campeões desejados:
     - Campeão jogado
     - Vitória ou derrota
     - Itens comprados (para identificar botas)
     - Nome da bota utilizada
     """
-    filtered_champions = {"Ahri", "Syndra", "Taliyah"}  # Conjunto com os campeões desejados
+    filtered_champions = {"Ahri"}  # Conjunto com os campeões desejados
     extracted_data = []
 
     for match_data in match_data_list:
@@ -71,12 +74,14 @@ def create_dataframe(match_data_list, puuid):
                     ]
                     boot_name = get_boot_name(items)  # Obtém o nome da bota
 
-                    extracted_data.append({
-                        "champion": champion,
-                        "win": participant.get("win"),
-                        "boots": boot_name,
-                        "items": items
-                    })
+                    # Adiciona os dados apenas se o jogador comprou botas
+                    if boot_name != "Sem Botas":
+                        extracted_data.append({
+                            "champion": champion,
+                            "win": participant.get("win"),
+                            "boots": boot_name,
+                            "items": items
+                        })
 
     return pd.DataFrame(extracted_data)
 
@@ -86,23 +91,24 @@ def analyze_champion_boots_win_rate(df):
     """Analisa o win rate por campeão dependendo da bota utilizada."""
     data = []
 
-        # Verifica se a coluna "boots" existe
-    if "boots" not in df.columns:
-        print("A coluna 'boots' não existe no DataFrame.")
-        return pd.DataFrame()  # Retorna um DataFrame vazio para evitar erro
-    
     for champion in df["champion"].unique():
         champ_data = df[df["champion"] == champion]
 
         for boot_name in ALL_BOOTS_IDS.values():
+            # Win rate COM a bota específica
             boot_data = champ_data[champ_data["boots"] == boot_name]
             total_with_boot = len(boot_data)
             wins_with_boot = boot_data["win"].sum()
 
-            no_boot_data = champ_data[champ_data["boots"] != boot_name]
+            # Win rate SEM a bota específica (excluindo outras botas)
+            no_boot_data = champ_data[
+                (champ_data["boots"] != boot_name) &  # Não está usando a bota específica
+                (champ_data["boots"] != "Sem Botas")  # Exclui partidas sem botas
+            ]
             total_without_boot = len(no_boot_data)
             wins_without_boot = no_boot_data["win"].sum()
 
+            # Calcula o win rate
             win_rate_with_boot = (wins_with_boot / total_with_boot) * 100 if total_with_boot > 0 else None
             win_rate_without_boot = (wins_without_boot / total_without_boot) * 100 if total_without_boot > 0 else None
 
@@ -119,52 +125,67 @@ def analyze_champion_boots_win_rate(df):
 
 def plot_champion_boots_win_rate(df, output_path="outputs/winrate_campeoes_botas.png"):
     """Cria um gráfico de barras comparando win rate com e sem botas."""
-    df = df.dropna()
+    
+    # Remove botas sem partidas
+    df = df[df["total_with_boot"] > 0]
+
+    # Remove valores NaN apenas para colunas de win rate
+    df = df.dropna(subset=["win_rate_with_boot", "win_rate_without_boot"], how="all")
 
     if df.empty:
-        logging.warning("Nenhum dado válido para plotar.")
+        print("Nenhum dado válido para plotar.")
         return
 
     champions = df["champion"].unique()
-    boots = df["boots"].unique()
-    
-    x = np.arange(len(champions)) 
-    width = 0.15  
+    boots_used = df["boots"].unique()  # Botas realmente utilizadas
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    x = np.arange(len(champions))  
+    width = 0.8 / len(boots_used)  # Ajuste dinâmico do espaçamento
 
-    for i, boot in enumerate(boots):
+    fig, ax = plt.subplots(figsize=(16, 8))
+
+    legend_labels = []
+
+    for i, boot in enumerate(boots_used):
         boot_data = df[df["boots"] == boot]
 
-        win_rates_with = {champ: boot_data[boot_data["champion"] == champ]["win_rate_with_boot"].values[0] 
-                          if champ in boot_data["champion"].values else 0 for champ in champions}
+        win_rates_with = [boot_data[boot_data["champion"] == champ]["win_rate_with_boot"].values[0] 
+                          if champ in boot_data["champion"].values else np.nan for champ in champions]
         
-        win_rates_without = {champ: boot_data[boot_data["champion"] == champ]["win_rate_without_boot"].values[0] 
-                             if champ in boot_data["champion"].values else 0 for champ in champions}
+        win_rates_without = [boot_data[boot_data["champion"] == champ]["win_rate_without_boot"].values[0] 
+                             if champ in boot_data["champion"].values else np.nan for champ in champions]
 
-        ax.bar(x + i * width - (len(boots) * width / 2), 
-               list(win_rates_with.values()), 
-               width=width, 
-               label=f"{boot} (Com)", 
-               alpha=0.7)
+        # Evita criar barras para valores NaN
+        if not np.isnan(win_rates_with).all():
+            bars1 = ax.bar(x + i * width - (len(boots_used) * width / 2), 
+                   [wr if not np.isnan(wr) else 0 for wr in win_rates_with], 
+                   width=width, 
+                   label=f"{boot} (Com)", 
+                   alpha=0.7)
+            legend_labels.append(f"{boot} (Com)")
 
-        ax.bar(x + i * width - (len(boots) * width / 2) + width/2, 
-               list(win_rates_without.values()), 
-               width=width, 
-               label=f"{boot} (Sem)", 
-               alpha=0.7)
+        if not np.isnan(win_rates_without).all():
+            bars2 = ax.bar(x + i * width - (len(boots_used) * width / 2) + width/2, 
+                   [wr if not np.isnan(wr) else 0 for wr in win_rates_without], 
+                   width=width, 
+                   label=f"{boot} (Sem)", 
+                   alpha=0.7)
+            legend_labels.append(f"{boot} (Sem)")
 
     ax.set_xlabel("Campeões")
     ax.set_ylabel("Win Rate (%)")
     ax.set_title("Win Rate por Campeão e Tipo de Botas")
-    ax.set_xticks(x)
-    ax.set_xticklabels(champions, rotation=45)
-    ax.legend()
-    ax.grid(axis="y", linestyle="--", alpha=0.7)
+    ax.set_xticks(range(len(champions))) 
+    ax.set_xticklabels(champions, rotation=45, ha="right")
 
+    if legend_labels:  
+        ax.legend(legend_labels, fontsize=8, loc="upper left", bbox_to_anchor=(1,1))
+    
+    ax.grid(axis="y", linestyle="--", alpha=0.7)
     plt.tight_layout()
     plt.savefig(output_path)
     plt.close()
+
 
 def analyze_and_plot(df):
     """Executa a análise e gera os gráficos."""
