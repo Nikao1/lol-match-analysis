@@ -1,4 +1,4 @@
-# lol-match-analysis
+#🏆lol-match-analysis
 
 Este projeto tem como objetivo analisar partidas de **League of Legends** utilizando a API oficial da **Riot Games**. A análise foca em extrair informações sobre o desempenho de campeões, especialmente no que diz respeito ao uso de botas, fornecendo insights valiosos para análise do impacto do item obervado na taxa de vitórias.
 Atualmente, a análise se concentra em partidas do elo Desafiante, onde se encontram os melhores jogadores, conforme o sistema de ranqueamento da Riot Games.
@@ -60,7 +60,7 @@ Além disso, será necessário obter uma chave de API da Riot Games, disponível
    RIOT_NICKNAME=Torricelli
    RIOT_TAGLINE=BR1
 
-💻 Uso
+## 💻 Uso
 Após configurar o projeto, você pode executá-lo de duas formas:
 
 1. Através do editor de código
@@ -80,7 +80,7 @@ Isso garantirá que os dados e gráficos gerados sobre a relação entre botas e
 🤝 Contribuição
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests com melhorias ou correções.
 
-📱Contato
+## 📱Contato
 
-- [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/nikolas-araujo/)
-- [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Nikao1)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/nikolas-araujo/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Nikao1)
