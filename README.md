@@ -1,4 +1,4 @@
-#🏆lol-match-analysis
+# 🏆lol-match-analysis
 
 Este projeto tem como objetivo analisar partidas de **League of Legends** utilizando a API oficial da **Riot Games**. A análise foca em extrair informações sobre o desempenho de campeões, especialmente no que diz respeito ao uso de botas, fornecendo insights valiosos para análise do impacto do item obervado na taxa de vitórias.
 Atualmente, a análise se concentra em partidas do elo Desafiante, onde se encontram os melhores jogadores, conforme o sistema de ranqueamento da Riot Games.
