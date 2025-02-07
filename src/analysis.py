@@ -19,7 +19,7 @@ DEFAULT_BOOTS_IDS = {
     3047: "Botas Galvanizadas de Aço",
 }
 
-# IDs das novas botas no jogo
+# IDs das novas botas no jogo(conseguidas com as façanhas implementadas)
 NEW_BOOTS_IDS = {
     3170: "Marcha Célere",
     3171: "Lucidez Escarlate",
@@ -55,7 +55,7 @@ def create_dataframe(match_data_list, puuid):
     - Itens comprados (para identificar botas)
     - Nome da bota utilizada
     """
-    filtered_champions = {"Ahri"}  # Conjunto com os campeões desejados
+    filtered_champions = {"Ahri"}  # Conjunto com os campe(ã)ões desejados
     extracted_data = []
 
     for match_data in match_data_list:
@@ -108,7 +108,7 @@ def analyze_champion_boots_win_rate(df):
             total_without_boot = len(no_boot_data)
             wins_without_boot = no_boot_data["win"].sum()
 
-            # Calcula o win rate
+            # Calculo do win rate
             win_rate_with_boot = (wins_with_boot / total_with_boot) * 100 if total_with_boot > 0 else None
             win_rate_without_boot = (wins_without_boot / total_without_boot) * 100 if total_without_boot > 0 else None
 
@@ -140,9 +140,13 @@ def plot_champion_boots_win_rate(df, output_path="outputs/winrate_campeoes_botas
     boots_used = df["boots"].unique()  # Botas realmente utilizadas
 
     x = np.arange(len(champions))  
-    width = 0.8 / len(boots_used)  # Ajuste dinâmico do espaçamento
+    width = 0.8 / (len(boots_used) * 2)  # Ajuste dinâmico do espaçamento
 
-    fig, ax = plt.subplots(figsize=(16, 8))
+    fig, ax = plt.subplots(figsize=(20, 10))  # Tamanho do gráfico
+
+    # Cores mais vibrantes para melhor visualiazação do gráfico
+    colors_with = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
+    colors_without = ['#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5', '#c49c94', '#f7b6d2', '#c7c7c7']
 
     legend_labels = []
 
@@ -155,21 +159,27 @@ def plot_champion_boots_win_rate(df, output_path="outputs/winrate_campeoes_botas
         win_rates_without = [boot_data[boot_data["champion"] == champ]["win_rate_without_boot"].values[0] 
                              if champ in boot_data["champion"].values else np.nan for champ in champions]
 
-        # Evita criar barras para valores NaN
+        # para evitar criar barras para valores NaN
         if not np.isnan(win_rates_with).all():
-            bars1 = ax.bar(x + i * width - (len(boots_used) * width / 2), 
+            bars1 = ax.bar(x + i * width * 2 - (len(boots_used) * width), 
                    [wr if not np.isnan(wr) else 0 for wr in win_rates_with], 
                    width=width, 
                    label=f"{boot} (Com)", 
-                   alpha=0.7)
+                   color=colors_with[i % len(colors_with)],  # Cores vibrantes para "Com"
+                   alpha=0.9,  # Menos transparência
+                   edgecolor='black',  # Bordas pretas
+                   linewidth=1)  # Espessura da borda
             legend_labels.append(f"{boot} (Com)")
 
         if not np.isnan(win_rates_without).all():
-            bars2 = ax.bar(x + i * width - (len(boots_used) * width / 2) + width/2, 
+            bars2 = ax.bar(x + i * width * 2 - (len(boots_used) * width) + width, 
                    [wr if not np.isnan(wr) else 0 for wr in win_rates_without], 
                    width=width, 
                    label=f"{boot} (Sem)", 
-                   alpha=0.7)
+                   color=colors_without[i % len(colors_without)],  # Cores complementares para "Sem"
+                   alpha=0.9,  # Menos transparência
+                   edgecolor='black',  # Bordas pretas
+                   linewidth=1)  # Espessura da borda
             legend_labels.append(f"{boot} (Sem)")
 
     ax.set_xlabel("Campeões")
