@@ -29,13 +29,36 @@ def main():
 
         if match_ids:
             match_data_list = []
-            for match_id in match_ids:
+            last_processed_index = 0
+
+            # Verifica se há um progresso salvo
+            progress_file = "data/last_processed_index.txt"
+            if os.path.exists(progress_file):
+                with open(progress_file, "r") as f:
+                    last_processed_index = int(f.read().strip())
+
+            for i in range(last_processed_index, len(match_ids)):
+                match_id = match_ids[i]
                 try:
-                    match_details = get_match_details(api_key, match_id)
+                    # Verifica se os detalhes da partida já foram salvos em cache
+                    cache_file = f"data/match_{match_id}.json"
+                    if os.path.exists(cache_file):
+                        logging.info(f"Carregando detalhes da partida {match_id} do cache...")
+                        with open(cache_file, "r") as f:
+                            match_details = json.load(f)
+                    else:
+                        match_details = get_match_details(api_key, match_id)
+                        if match_details:
+                            save_to_json(cache_file, match_details)
+                            logging.info(f"Detalhes da Partida {match_id} salvos com sucesso.")
+
                     if match_details:
-                        save_to_json(f"data/match_{match_id}.json", match_details)
-                        logging.info(f"Detalhes da Partida {match_id} salvos com sucesso.")
                         match_data_list.append(match_details)
+
+                    # Salva o progresso atual
+                    with open(progress_file, "w") as f:
+                        f.write(str(i + 1))  # Salva o próximo índice a ser processado
+
                 except Exception as e:
                     logging.error(f"Erro ao obter detalhes da partida {match_id}: {e}")
 
