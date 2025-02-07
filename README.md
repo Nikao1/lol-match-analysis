@@ -1,79 +1,86 @@
 # lol-match-analysis
 
-Este projeto tem como objetivo analisar partidas de League of Legends utilizando a API oficial da Riot Games. A análise visa extrair informações úteis sobre desempenho, estratégias e estatísticas de jogadores ou equipes, além de fornecer insights valiosos para melhorar a experiência de jogo.
+Este projeto tem como objetivo analisar partidas de **League of Legends** utilizando a API oficial da **Riot Games**. A análise foca em extrair informações sobre o desempenho de campeões, especialmente no que diz respeito ao uso de botas, fornecendo insights valiosos para análise do impacto do item obervado na taxa de vitórias.
+Atualmente, a análise se concentra em partidas do elo Desafiante, onde se encontram os melhores jogadores, conforme o sistema de ranqueamento da Riot Games.
 
-## Funcionalidades
+## 📊 Funcionalidades
 
-- **Consulta de Dados de Partidas**: Busca informações detalhadas sobre partidas específicas.
-- **Análise de Estatísticas**: Geração de estatísticas relacionadas a campeões, builds e desempenhos de jogadores.
-- **Geração de Relatórios**: Criação de gráficos e relatórios que visualizam os dados de forma intuitiva.
+- **Coleta de Dados de Partidas**: Busca informações detalhadas sobre partidas específicas de um jogador.
+- **Análise de Estatísticas**: Gera estatísticas relacionadas ao uso de diferentes tipos de botas pelo(s) campe(ã)ões.
+- **Visualização de Dados**: Cria gráficos que ilustram a taxa de vitória associada a cada tipo de bota utilizada.
 
-## Tecnologias Utilizadas
+## 🛠 Tecnologias Utilizadas
 
 - **Linguagem**: Python
 - **Bibliotecas**:
   - `requests`: Para realizar chamadas à API da Riot Games.
   - `pandas`: Para manipulação e análise de dados.
-  - `matplotlib` e `seaborn`: Para visualização de dados.
-- **API**: Riot Games API
+  - `matplotlib`: Para visualização de dados.
 
-## Pré-requisitos
+## 🚀 Pré-requisitos
 
-Antes de utilizar, certifique-se de ter as seguintes ferramentas instaladas em seu ambiente:
+Antes de começar, certifique-se de ter as seguintes ferramentas instaladas:
 
 - Python 3.8 ou superior
 - Pip (gerenciador de pacotes do Python)
 
-Além disso, será necessário obter uma chave de API da Riot Games. Para isso, siga os passos:
+Além disso, será necessário obter uma chave de API da Riot Games, disponível em: [Riot Games Developer Portal](https://developer.riotgames.com/)
 
-1. Crie uma conta ou faça login no [Developer Portal da Riot Games](https://developer.riotgames.com/).
-2. Gere uma chave de API e anote-a. Ela será usada para autenticação nas requisições à API.
+**OBS.:** Precisará de uma conta na Riot Games para poder utilizar o recurso.
 
-## Instalação
+## 📥 Instalação
 
-1. Clone o repositório do projeto:
+1. **Clone o repositório**:
 
-
+   ```bash
    git clone https://github.com/Nikao1/lol-match-analysis.git
    cd lol-match-analysis
 
-2. Crie e ative um ambiente virtual (recomendado):
+2. Crie um ambiente virtual (recomendado):
 
+   ```bash
    python -m venv venv
-   source venv/bin/activate # No Windows, use: venv\Scripts\activate
+   source venv/bin/activate  # Linux/macOS
+   venv\Scripts\activate  # Windows
 
-3. Instale as dependências do projeto:
 
+3. Instale os pacotes necessários:
+
+   ```bash
    pip install -r requirements.txt
 
-4. Configure a chave API:
+4. Crie um arquivo .env na raiz do projeto
+   
+   ´´´bash
+   echo RIOT_API_KEY= > .env & echo RIOT_NICKNAME= >> .env & echo RIOT_TAGLINE= >> .env
 
-   Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+5. Preencha as variáveis no .env de acordo com o exemplo:
 
-   ```.env
-   RIOT_API_KEY=(chave api que resgatar no site de desenvolvedor da RIOT)
-   RIOT_NICKNAME=(nick desejado)
-   RIOT_TAGLINE=(tag desejada)
-   ```
+   RIOT_API_KEY=RGAPI-b4dadc-db2a-4444-95f9-d66b9aufe924
+   RIOT_NICKNAME=Torricelli
+   RIOT_TAGLINE=BR1
 
-## Como Usar
+💻 Uso
+Após configurar o projeto, você pode executá-lo de duas formas:
 
-1. Execute o script principal através do terminal utilizando o comando:
+1. Através do editor de código
+-  Execute o arquivo main.py diretamente pela interface do seu editor.
 
+2. Através do terminal
+
+  ´´´bash
    cd src
    python main.py
-   
 
-2. Receba os dados através de um arquivo CSV
+Isso garantirá que os dados e gráficos gerados sobre a relação entre botas e taxa de vitórias sejam armazenados, respectivamente, nas pastas:
 
+-  📁 /data → Armazena os dados processados.
+-  📁 /outputs → Contém os gráficos gerados.
 
-## Licença
+🤝 Contribuição
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests com melhorias ou correções.
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
+📱Contato
 
-## Contato
-
-Se você tiver dúvidas ou sugestões, sinta-se à vontade para entrar em contato:
-
-- **Email**: nikolasadsms@gmail.com
-- **GitHub**: [Nikao1](https://github.com/Nikao1)
+- [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/nikolas-araujo/)
+- [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Nikao1)
