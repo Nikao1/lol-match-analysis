@@ -71,6 +71,7 @@ Após configurar o projeto, você pode executá-lo de duas formas:
   ```bash
    cd src
    python main.py
+   ```
 
 Isso garantirá que os dados e gráficos gerados sobre a relação entre botas e taxa de vitórias sejam armazenados, respectivamente, nas pastas:
 
