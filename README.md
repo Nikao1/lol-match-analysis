@@ -77,6 +77,8 @@ Isso garantirá que os dados e gráficos gerados sobre a relação entre botas e
 
 -  📁 /data → Armazena os dados processados.
 -  📁 /outputs → Contém os gráficos gerados.
+   - Como no exemplo abaixo:
+   
 
 ## 🤝 Contribuição
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests com melhorias ou correções.
